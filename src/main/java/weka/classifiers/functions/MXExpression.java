@@ -494,7 +494,7 @@ import java.util.Vector;
  <!-- globalinfo-end -->
  *
  <!-- options-start -->
- * Valid options are: <p>
+ * Valid options are: <p/>
  *
  * <pre> -expression &lt;expression&gt;
  *  The expression to use.
