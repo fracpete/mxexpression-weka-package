@@ -6,10 +6,27 @@ library for mathematical expressions on numeric attributes.
 
 The following schemes are available:
 
-* `weka.filters.unsupervised.attribute.MXExpression` - applies the expression
-  to the specified attributes.
+* `weka.filters.unsupervised.attribute.MXExpression` - updates the specified
+  target attribute with the value derived from the the expression.
 * `weka.classifiers.functions.MXExpression` - simple classifier that just
-  applies a formula to the data to make a prediction.
+  applies a formula to the data and outputs the calculated value as prediction.
+  This can be used to compare algorithms based on mathematical formulas with
+  other Weka classifiers.
+  
+You can use attribute values via their 1-based index (as in `attX` and *X* being the
+1-based index) or their name (lower case name gets stripped off of all non-alphanumeric 
+characters, eg 'My Att 1' becomes 'myatt1').
+  
+Main functionality of the [mXparser](https://sourceforge.net/projects/mxparser/) library:
+* basic operators, i.e.: +, -, *, ^, !
+* Boolean logic operators i.e.: or, and, xor
+* binary relations i.e.: =, <, >
+* math functions (large library of 1-arg, 2-arg, 3-arg - - functions) i.e.: sin, cos, Stirling numbers, log, inverse functions
+* constants (large library), i.e.: pi, e, golden ratio
+* n-args functions i.e.: greatest common divisor
+* iterated summation and product operators
+* differentiation and integration
+
 
 Releases
 --------
