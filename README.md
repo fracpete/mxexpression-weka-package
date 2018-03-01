@@ -15,7 +15,11 @@ The following schemes are available:
   
 You can use attribute values via their 1-based index (as in `attX` and *X* being the
 1-based index) or their name (lower case name gets stripped off of all non-alphanumeric 
-characters, eg 'My Att 1' becomes 'myatt1').
+characters, eg 'My Att 1' becomes 'myatt1'). 
+
+It is also possible to restrict the evaluation to a subset of the attributes in
+the data, by using the `-attributes` option to define the attribute range. The
+default is to operate on all attributes. 
   
 Main functionality of the [mXparser](https://sourceforge.net/projects/mxparser/) library:
 * basic operators, i.e.: +, -, *, ^, !
@@ -33,6 +37,7 @@ Releases
 
 Click on one of the following links to download the corresponding Weka package:
 
+* [2018.3.2](https://github.com/fracpete/mxexpression-weka-package/releases/download/v2018.3.2/mxexpression-2018.3.2.zip)
 * [2018.2.19](https://github.com/fracpete/mxexpression-weka-package/releases/download/v2018.2.19/mxexpression-2018.2.19.zip)
 
 
@@ -53,7 +58,7 @@ Add the following dependency in your `pom.xml` to include the package:
     <dependency>
       <groupId>com.github.fracpete</groupId>
       <artifactId>mxexpression-weka-package</artifactId>
-      <version>2018.2.19</version>
+      <version>2018.3.2</version>
       <type>jar</type>
       <exclusions>
         <exclusion>
