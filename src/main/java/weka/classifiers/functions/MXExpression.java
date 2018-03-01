@@ -773,8 +773,7 @@ public class MXExpression
     result.enable(Capability.NUMERIC_CLASS);
     result.enable(Capability.DATE_CLASS);
     result.enable(Capability.MISSING_CLASS_VALUES);
-    result.enable(Capability.NUMERIC_ATTRIBUTES);
-    result.enable(Capability.DATE_ATTRIBUTES);
+    result.enableAllAttributes();
     result.setMinimumNumberInstances(1);
 
     return result;

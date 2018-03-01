@@ -14,7 +14,7 @@
  */
 
 /*
- * Copyright (C) 2002-2016 University of Waikato
+ * Copyright (C) 2018 University of Waikato
  */
 
 package weka.filters.unsupervised.attribute;
@@ -85,7 +85,8 @@ public class MXExpressionTest
     data.setClassIndex(TestInstances.CLASS_IS_LAST);
     data.setNumInstances(20);
     data.setNumNumeric(10);
-    data.setNumNominal(0);
+    data.setNumNominal(2);
+    data.setNumString(1);
     data.setNumDate(1);
     return data.generate();
   }
@@ -99,10 +100,15 @@ public class MXExpressionTest
   @Override
   protected FilteredClassifier getFilteredClassifier() {
     FilteredClassifier	result;
+    FilteredClassifier	internal;
+
+    internal = new FilteredClassifier();
+    internal.setFilter(new RemoveType());
+    internal.setClassifier(new LinearRegression());
 
     result = new FilteredClassifier();
     result.setFilter(getFilter());
-    result.setClassifier(new LinearRegression());
+    result.setClassifier(internal);
 
     return result;
   }
@@ -121,7 +127,7 @@ public class MXExpressionTest
    */
   public void testAttributeIndices() {
     MXExpression filter = new MXExpression();
-    filter.setExpression("(att1 + att3) / att5");
+    filter.setExpression("(att3 + att5) / att7");
     filter.setUseAttributeNames(false);
     m_Filter = filter;
     Instances result = useFilter();

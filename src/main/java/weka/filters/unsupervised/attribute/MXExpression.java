@@ -837,8 +837,7 @@ public class MXExpression
     result = new Capabilities(this);
     result.enableAllClasses();
     result.enable(Capability.NO_CLASS);
-    result.enable(Capability.NUMERIC_ATTRIBUTES);
-    result.enable(Capability.DATE_ATTRIBUTES);
+    result.enableAllAttributes();
     result.setMinimumNumberInstances(1);
 
     return result;
