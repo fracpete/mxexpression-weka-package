@@ -1,4 +1,4 @@
-@relation Testdata-weka.filters.unsupervised.attribute.MXExpression-expression1-targetlast
+@relation Testdata-weka.filters.unsupervised.attribute.MXExpression-expression1-targetlast-attributesfirst-last
 
 @attribute Numeric1 numeric
 @attribute Numeric2 numeric

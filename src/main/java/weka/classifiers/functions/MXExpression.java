@@ -20,7 +20,6 @@
 
 package weka.classifiers.functions;
 
-import org.mariuszgromada.math.mxparser.Argument;
 import org.mariuszgromada.math.mxparser.Expression;
 import org.mariuszgromada.math.mxparser.mXparser;
 import weka.classifiers.AbstractClassifier;
@@ -28,7 +27,9 @@ import weka.core.Capabilities;
 import weka.core.Capabilities.Capability;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.core.MXExpressionBuilder;
 import weka.core.Option;
+import weka.core.Range;
 import weka.core.RevisionUtils;
 import weka.core.Utils;
 import weka.core.WekaException;
@@ -36,9 +37,7 @@ import weka.core.WekaException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 
 /**
@@ -494,11 +493,15 @@ import java.util.Vector;
  <!-- globalinfo-end -->
  *
  <!-- options-start -->
- * Valid options are: <br>
+ * Valid options are: <p>
  *
  * <pre> -expression &lt;expression&gt;
  *  The expression to use.
  *  (default: 1)</pre>
+ *
+ * <pre> -attributes &lt;range string&gt;
+ *  The range of attributes to consider evaluating the expression.
+ *  (default: first-last)</pre>
  *
  * <pre> -use-attribute-names
  *  If enabled, attribute names instead of 'attX' are used in the expression.
@@ -530,17 +533,23 @@ public class MXExpression
   /** the flag for the expression. */
   public final static String EXPRESSION = "expression";
 
+  /** the flag for the range of attributes. */
+  public final static String ATTRIBUTES = "attributes";
+
   /** the flag for whether to use attribute names in the expression. */
   public final static String USE_ATTRIBUTE_NAMES = "use-attribute-names";
 
   /** the expression to use. */
   protected String m_Expression = getDefaultExpression();
 
+  /** the attribute range. */
+  protected Range m_Attributes = new Range(getDefaultAttributes());
+
   /** whether to use attribute names instead of attX. */
   protected boolean m_UseAttributeNames = getDefaultUseAttributeNames();
 
-  /** the att index/argument name relation. */
-  protected Map<Integer,String> m_ArgumentNames;
+  /** for building the expression. */
+  protected MXExpressionBuilder m_Builder;
 
   /**
    * Returns a string describing this classifier.
@@ -572,6 +581,11 @@ public class MXExpression
       EXPRESSION, 1, "-" + EXPRESSION + " <expression>"));
 
     result.addElement(new Option(
+      "\tThe range of attributes to consider evaluating the expression.\n"
+        + "\t(default: " + getDefaultAttributes() + ")",
+      ATTRIBUTES, 1, "-" + ATTRIBUTES + " <range string>"));
+
+    result.addElement(new Option(
       "\tIf enabled, attribute names instead of 'attX' are used in the expression.\n"
         + "\t(default: disabled)",
       USE_ATTRIBUTE_NAMES, 0, "-" + USE_ATTRIBUTE_NAMES));
@@ -592,6 +606,9 @@ public class MXExpression
     
     result.add("-" + EXPRESSION);
     result.add(getExpression());
+
+    result.add("-" + ATTRIBUTES);
+    result.add(getAttributes());
 
     if (getUseAttributeNames())
       result.add("-" + USE_ATTRIBUTE_NAMES);
@@ -616,6 +633,13 @@ public class MXExpression
       setExpression(tmpStr);
     else
       setExpression(getDefaultExpression());
+
+    tmpStr = Utils.getOption(ATTRIBUTES, options);
+    if (!tmpStr.isEmpty())
+      setAttributes(tmpStr);
+    else
+      setAttributes(getDefaultAttributes());
+
     setUseAttributeNames(Utils.getFlag(USE_ATTRIBUTE_NAMES, options));
 
     super.setOptions(options);
@@ -658,6 +682,44 @@ public class MXExpression
    */
   public String expressionTipText() {
     return "The expression to use for making predictions.";
+  }
+
+  /**
+   * Returns the default attributes to consider.
+   *
+   * @return the default
+   */
+  protected String getDefaultAttributes() {
+    return "first-last";
+  }
+
+  /**
+   * Sets the range of attributes to include in the evaluation of the expression.
+   *
+   * @param value the target attribute
+   */
+  public void setAttributes(String value) {
+    m_Attributes.setRanges(value);
+  }
+
+  /**
+   * Gets the range of attributes to include in the evaluation of the expression.
+   *
+   * @return the attributes to use
+   */
+  public String getAttributes() {
+    return m_Attributes.getRanges();
+  }
+
+  /**
+   * Returns the tip text for this property
+   *
+   * @return tip text for this property suitable for displaying in the
+   *         explorer/experimenter gui
+   */
+  public String attributesTipText() {
+    return "The range of attributes to consider for evaluating the expression "
+      + "(1-based indices; 'first' and 'last' also accepted; eg '1,4,5-last').";
   }
 
   /**
@@ -719,61 +781,6 @@ public class MXExpression
   }
 
   /**
-   * Builds the attribute name for the parser. Builds names only once and then
-   * stores them in {@link #m_ArgumentNames}.
-   *
-   * @param inst	the current instance
-   * @param index	the attribute index
-   * @return		the name for the parser expression
-   * @see		#m_ArgumentNames
-   */
-  protected String buildName(Instance inst, int index) {
-    StringBuilder	result;
-    String		name;
-    int			i;
-    char		c;
-
-    if (!m_ArgumentNames.containsKey(index)) {
-      if (getUseAttributeNames()) {
-	result = new StringBuilder();
-	name = inst.attribute(index).name().toLowerCase();
-	for (i = 0; i < name.length(); i++) {
-	  c = name.charAt(i);
-	  if (Character.isLetterOrDigit(c))
-	    result.append(c);
-	}
-	m_ArgumentNames.put(index, result.toString());
-      }
-      else {
-	m_ArgumentNames.put(index, "att" + (index + 1));
-      }
-    }
-
-    return m_ArgumentNames.get(index);
-  }
-
-  /**
-   * Builds the expression using the provided instance.
-   *
-   * @param instance	the instance to use
-   * @return		the generated expression
-   */
-  protected Expression buildExpression(Instance instance) {
-    List<Argument>	args;
-    Expression 		result;
-    int			i;
-
-    args = new ArrayList<Argument>();
-    for (i = 0; i < instance.numAttributes(); i++) {
-      if (instance.attribute(i).isNumeric())
-	args.add(new Argument(buildName(instance, i) + " = " + instance.value(i)));
-    }
-    result = new Expression(m_Expression, args.toArray(new Argument[args.size()]));
-
-    return result;
-  }
-
-  /**
    * Generates a classifier.
    *
    * @param data set of instances serving as training data
@@ -787,11 +794,12 @@ public class MXExpression
     getCapabilities().testWithFail(data);
 
     // reset names
-    m_ArgumentNames = new HashMap<Integer, String>();
+    m_Builder = new MXExpressionBuilder(m_Expression, m_Attributes, m_UseAttributeNames);
+    m_Builder.initialize(data);
 
     // test expression
     if (data.numInstances() > 0) {
-      expr = buildExpression(data.instance(0));
+      expr = m_Builder.build(data.instance(0));
       if (!expr.checkSyntax())
         throw new WekaException(
           "Illegal expression syntax: " + m_Expression + "\n"
@@ -811,7 +819,7 @@ public class MXExpression
   public double classifyInstance(Instance instance) throws Exception {
     Expression 		expr;
 
-    expr = buildExpression(instance);
+    expr = m_Builder.build(instance);
     return expr.calculate();
   }
 
