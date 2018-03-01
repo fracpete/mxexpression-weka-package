@@ -5,10 +5,10 @@
 PackageName=mxexpression
 
 # Version (required)
-Version=2018.2.19
+Version=2018.3.2
 
 #Date (year-month-day)
-Date=2018-02-19
+Date=2018-03-02
 
 # Title (required)
 Title=MxExpression
@@ -29,7 +29,7 @@ License=GPL 3.0
 Description=Contains filter and classifier for applying mathematical expressions using the mXparser library (https://sourceforge.net/projects/mxparser/).
 
 # Package URL for obtaining the package archive (required)
-PackageURL=https://github.com/fracpete/mxexpression-weka-package/releases/download/v2018.2.19/mxexpression-2018.2.19.zip
+PackageURL=https://github.com/fracpete/mxexpression-weka-package/releases/download/v2018.3.2/mxexpression-2018.3.2.zip
 
 # URL for further information
 URL=https://github.com/fracpete/mxexpression-weka-package
